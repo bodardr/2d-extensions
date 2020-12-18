@@ -1,0 +1,13 @@
+{
+  "name": "com.romanb.utility",
+  "version": "0.0.1",
+  "displayName": "Utility",
+  "description": "Useful gamedev premade code and patterns",
+  "unity": "2020.2",
+  "dependencies": {
+ },
+  "author": {
+    "name": "Roman B.",
+    "email": "romain.bodard@videotron.ca"
+  }
+}
