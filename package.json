@@ -1,11 +1,10 @@
 {
-  "name": "com.romanb.utility",
-  "version": "0.0.1",
-  "displayName": "Utility",
-  "description": "Useful gamedev premade code and patterns",
+  "name": "com.bodardr.pooling",
+  "version": "0.0.3",
+  "displayName": "Object Pooling",
+  "description": "Caching GameObjects and other components to reduce lag and overload!",
   "unity": "2020.2",
-  "dependencies": {
- },
+  "dependencies": {},
   "author": {
     "name": "Roman B.",
     "email": "romain.bodard@videotron.ca"
