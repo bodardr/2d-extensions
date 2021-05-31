@@ -1,6 +1,6 @@
 {
-    "name": "com.romanb.utility",
-    "rootNamespace": "RomanB.Utility.Runtime",
+    "name": "com.bodardr.utility",
+    "rootNamespace": "Bodardr.Utility",
     "references": [
         "Unity.TextMeshPro",
         "Unity.InputSystem"
