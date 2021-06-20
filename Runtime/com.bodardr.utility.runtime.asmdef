@@ -1,0 +1,17 @@
+{
+  "name": "com.bodardr.utility.runtime",
+  "rootNamespace": "Bodardr.Utility.Runtime",
+  "references": [
+    "Unity.TextMeshPro",
+    "Unity.InputSystem"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

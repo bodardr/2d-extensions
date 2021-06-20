@@ -1,6 +1,6 @@
 {
   "name": "com.bodardr.utility",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "displayName": "Utility",
   "description": "Useful gamedev premade code and patterns",
   "unity": "2020.2",

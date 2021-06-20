@@ -2,12 +2,15 @@ using UnityEngine;
 
 public class ScreenSpaceUI : MonoBehaviour
 {
-    private Canvas parentCanvas;
-    private RectTransform rectTransform;
-    private new Camera camera;
-
     [SerializeField]
     private Transform target = null;
+
+    [SerializeField]
+    private Vector2 offset;
+
+    private new Camera camera;
+    private Canvas parentCanvas;
+    private RectTransform rectTransform;
 
     public Transform Target
     {
@@ -26,11 +29,16 @@ public class ScreenSpaceUI : MonoBehaviour
     {
         if (!target)
             return;
-        
+
         RectTransformUtility.ScreenPointToWorldPointInRectangle(rectTransform,
-            camera.WorldToScreenPoint(target.position),
+            camera.WorldToScreenPoint(target.position) + camera.ViewportToScreenPoint(offset),
             parentCanvas.renderMode == RenderMode.ScreenSpaceCamera ? camera : null, out var position);
 
         rectTransform.position = position;
+    }
+
+    public void SetOffset(Vector2 newOffset)
+    {
+        offset = newOffset;
     }
 }
