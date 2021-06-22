@@ -9,19 +9,8 @@ public class PhysicsController2D : RaycastController
     private const float MIN_MOVE_DISTANCE = 0.01f;
     private const float NORMAL_SLOPE_TOLERANCE = 0.65f;
 
-    private Rigidbody2D rb;
-
-    private Vector2 inputVector;
+    [SerializeField]
     private Vector2 velocity;
-    private Vector2 position;
-
-    private bool facingRight = true;
-    private bool grounded;
-
-    private bool onWall;
-    private bool wallFromRight;
-
-    private List<InputOverridable> overridables = new List<InputOverridable>(3);
 
     [SerializeField]
     private LayerMask groundMask;
@@ -30,26 +19,36 @@ public class PhysicsController2D : RaycastController
     private bool isKinematic;
 
     [Header("Friction")]
+    [Range(0, 1)]
     [SerializeField]
-    private float groundFriction = 3;
+    private float groundFriction = 0.25f;
 
     [SerializeField]
-    private float airFriction = 2;
+    [Range(0, 1)]
+    private float airFriction = 0.15f;
 
     [Header("Velocity Dampening")]
     [SerializeField]
     private float maxHorizontalVelocity = 12;
 
     [SerializeField]
-    private float maxDownwardsVelocity = -15;
-
-    [SerializeField]
-    private float maxUpwardsVelocity = 15;
-
+    private Vector2 yVelocityRange = new Vector2(-15, 15);
 
     [Header("Acceleration")]
     [SerializeField]
     private float horizontalAcceleration = 10f;
+
+    private bool facingRight = true;
+    private bool grounded;
+
+    private Vector2 inputVector;
+
+    private bool onWall;
+
+    private List<InputOverridable> overridables = new List<InputOverridable>(3);
+
+    private Rigidbody2D rb;
+    private bool wallFromRight;
 
     public Vector2 Velocity
     {
@@ -59,12 +58,13 @@ public class PhysicsController2D : RaycastController
 
     public Vector2 Position
     {
-        get => position;
+        get => rb.position;
         set
         {
-            var delta = value - position;
+            var delta = value - Position;
 
             UpdateRaycastPositions();
+
             Move(delta);
         }
     }
@@ -100,12 +100,6 @@ public class PhysicsController2D : RaycastController
         }
     }
 
-    public float MaxDownwardsVelocity
-    {
-        get => maxDownwardsVelocity;
-        set => maxDownwardsVelocity = value;
-    }
-
     public bool IsKinematic
     {
         get => isKinematic;
@@ -114,10 +108,32 @@ public class PhysicsController2D : RaycastController
 
     private bool IsInputOverriden => overridables.Count > 0;
 
+    public bool FacingRight
+    {
+        get => facingRight;
+        set => facingRight = value;
+    }
+
+    public Vector2 YVelocityRange
+    {
+        get => yVelocityRange;
+        set => yVelocityRange = value;
+    }
+
     protected override void Awake()
     {
         base.Awake();
         rb = GetComponent<Rigidbody2D>();
+    }
+
+    private void Update()
+    {
+        var deltaTime = Time.deltaTime;
+
+        Debug.Log(deltaTime);
+        velocity = Move(velocity, deltaTime) / deltaTime;
+
+        Debug.Log($"Velocity : {velocity}");
     }
 
     private void FixedUpdate()
@@ -130,36 +146,35 @@ public class PhysicsController2D : RaycastController
         ApplyGravity();
 
         if (!IsInputOverriden)
-            ApplyMovement();
-
-        Move(velocity * Time.fixedDeltaTime);
+            ApplyHorizontalMovement();
 
         ApplyFriction();
         ApplyVelocityDampening();
     }
 
-    private void Move(Vector2 delta)
+    private Vector2 Move(Vector2 displacement, float deltaTime = 1)
     {
-        if (Mathf.Abs(delta.x) > MIN_MOVE_DISTANCE)
-            facingRight = delta.x > 0;
+        deltaTime = Mathf.Max(Mathf.Epsilon, deltaTime);
 
-        MoveHorizontal(delta.x, out var moveX);
-        MoveVertical(delta.y, out var moveY);
+        displacement *= deltaTime;
 
-        var movement = new Vector2(moveX, moveY);
-        rb.MovePosition(rb.position + movement);
-        position = rb.position + movement;
+        var actualMovement = new Vector2(MoveHorizontal(displacement.x)
+            , MoveVertical(displacement.y));
 
-        if (!isKinematic)
-            velocity = movement / Time.fixedDeltaTime;
+        if (Mathf.Abs(actualMovement.x) > MIN_MOVE_DISTANCE)
+            FacingRight = actualMovement.x > 0;
+
+        rb.MovePosition(Position + actualMovement);
+
+        return actualMovement;
     }
 
-    private void MoveHorizontal(float delta, out float moveX)
+    private float MoveHorizontal(float deltaX)
     {
         var onWallThisFrame = false;
 
-        moveX = delta;
-        float directionX = facingRight ? 1 : -1;
+        var moveX = deltaX;
+        float directionX = FacingRight ? 1 : -1;
 
         for (int i = 0; i < horizontalRayCount; i++)
         {
@@ -188,22 +203,22 @@ public class PhysicsController2D : RaycastController
             moveX = 0;
 
         OnWall = onWallThisFrame;
+
+        return moveX;
     }
 
-    private void MoveVertical(float delta, out float moveY)
+    private float MoveVertical(float movementY)
     {
         var groundedThisFrame = false;
 
-        moveY = delta;
+        var moveY = movementY;
         float directionY = Mathf.Sign(moveY);
 
+        var rayOrigin = directionY > 0 ? RaycastPositions.topLeft : RaycastPositions.bottomLeft;
         for (int i = 0; i < verticalRayCount; i++)
         {
-            var rayOrigin = directionY > 0 ? RaycastPositions.topLeft : RaycastPositions.bottomLeft;
-            rayOrigin += Vector2.right * (verticalRaySpacing * i);
-
-            Debug.DrawLine(rayOrigin, rayOrigin + Vector2.up * (directionY * (Mathf.Abs(moveY) + SHELL_RADIUS)));
-            var hit = Physics2D.Raycast(rayOrigin, Vector2.up * directionY, Mathf.Abs(moveY) + SHELL_RADIUS,
+            Debug.DrawLine(rayOrigin, rayOrigin + Vector2.up * (moveY + SHELL_RADIUS));
+            var hit = Physics2D.Raycast(rayOrigin, new Vector2(0, directionY), Mathf.Abs(moveY) + SHELL_RADIUS,
                 groundMask);
 
             if (hit)
@@ -219,42 +234,37 @@ public class PhysicsController2D : RaycastController
 
                 moveY -= moveY - (hit.distance - SHELL_RADIUS) * directionY;
             }
+
+            rayOrigin += Vector2.right * (verticalRaySpacing * i);
         }
 
         if (Mathf.Abs(moveY) < MIN_MOVE_DISTANCE)
             moveY = 0;
 
         Grounded = groundedThisFrame;
-    }
 
-    private Vector2 SubtractTillZero(Vector2 origin, Vector2 subtraction)
-    {
-        origin.x = Math.Min(0, origin.x - subtraction.x);
-        origin.y = Math.Min(0, origin.y - subtraction.y);
-
-        return origin;
+        return moveY;
     }
 
     private void ApplyGravity()
     {
-        Vector2 gravity = Physics2D.gravity;
-        velocity = Velocity + gravity * Time.deltaTime;
+        velocity += Physics2D.gravity * Time.fixedDeltaTime;
     }
 
-    private void ApplyMovement()
+    private void ApplyHorizontalMovement()
     {
-        velocity.x += horizontalAcceleration * (inputVector.x * Time.fixedDeltaTime);
+        velocity.x += horizontalAcceleration * Time.fixedDeltaTime * inputVector.x;
     }
 
     private void ApplyFriction()
     {
-        velocity.x -= Velocity.x * (Grounded ? groundFriction : airFriction) * Time.fixedDeltaTime;
+        velocity.x -= velocity.x * (Grounded ? groundFriction : airFriction) * Time.fixedDeltaTime;
     }
 
     private void ApplyVelocityDampening()
     {
-        velocity.x = Mathf.Clamp(Velocity.x, -maxHorizontalVelocity, maxHorizontalVelocity);
-        velocity.y = Mathf.Clamp(Velocity.y, maxDownwardsVelocity, maxUpwardsVelocity);
+        velocity.x = Mathf.Clamp(velocity.x, -maxHorizontalVelocity, maxHorizontalVelocity);
+        velocity.y = Mathf.Clamp(velocity.y, YVelocityRange.x, YVelocityRange.y);
     }
 
     private void OnMove(InputValue value)
@@ -277,5 +287,13 @@ public class PhysicsController2D : RaycastController
     {
         if (overridables.Remove(overridable))
             overridable.OnControlRegained();
+    }
+
+    private Vector2 SubtractTillZero(Vector2 origin, Vector2 subtraction)
+    {
+        origin.x = Math.Max(0, origin.x - subtraction.x);
+        origin.y = Math.Max(0, origin.y - subtraction.y);
+
+        return origin;
     }
 }
