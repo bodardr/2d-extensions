@@ -3,14 +3,13 @@ using UnityEngine;
 
 public class JumpController2D : MonoBehaviour
 {
-    private PhysicsController2D physicsController2D;
-    private Coroutine coyoteTimeCoroutine;
-
-    private bool canJump = false;
-    private bool isDashing = false;
-
     [SerializeField]
     private float jumpForce;
+
+    private bool canJump = false;
+    private Coroutine coyoteTimeCoroutine;
+    private bool isDashing = false;
+    private PhysicsController2D physicsController2D;
 
     private void Start()
     {
@@ -60,6 +59,6 @@ public class JumpController2D : MonoBehaviour
 
         physicsController2D.Velocity = new Vector2(physicsController2D.Velocity.x, jumpForce);
         canJump = false;
-        SendMessage("OnJumpEnter", Vector2.up, SendMessageOptions.DontRequireReceiver);
+        BroadcastMessage("OnJumpEnter", Vector2.up, SendMessageOptions.DontRequireReceiver);
     }
 }

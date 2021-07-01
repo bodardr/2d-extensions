@@ -1,26 +1,10 @@
-using System;
 using System.Collections;
 using DG.Tweening;
-using DG.Tweening.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class DashController2D : MonoBehaviour
 {
-    private PhysicsController2D physicsController;
-
-    private bool canDash = false;
-    private bool checkForDashRefill = true;
-
-    private Coroutine dashCoroutine;
-    private Tweener dashTween;
-
-    private Vector2 dashPosition;
-    private Vector2 lastDashPosition;
-
-    private Vector2 moveVector;
-    private Vector2 dashDirection;
-    
     [SerializeField]
     private float dashForce = 5;
 
@@ -39,6 +23,19 @@ public class DashController2D : MonoBehaviour
     [SerializeField]
     private float waveDashInfluence;
 
+    private bool canDash = false;
+    private bool checkForDashRefill = true;
+
+    private Coroutine dashCoroutine;
+    private Vector2 dashDirection;
+
+    private Vector2 dashPosition;
+    private Tweener dashTween;
+    private Vector2 lastDashPosition;
+
+    private Vector2 moveVector;
+    private PhysicsController2D physicsController;
+
     private bool IsDashing => dashCoroutine != null;
 
     private void Start()
@@ -50,6 +47,12 @@ public class DashController2D : MonoBehaviour
     {
         if (checkForDashRefill && physicsController.Grounded)
             RefillDash();
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(transform.position, transform.position + Vector3.right * dashForce * dashDuration);
     }
 
     private void RefillDash()
@@ -88,16 +91,16 @@ public class DashController2D : MonoBehaviour
         dashCoroutine = null;
         physicsController.IsKinematic = false;
         dashTween.Kill();
-        SendMessage("OnDashExit", SendMessageOptions.DontRequireReceiver);
+        BroadcastMessage("OnDashExit", SendMessageOptions.DontRequireReceiver);
     }
 
     private IEnumerator DashCoroutine()
     {
-        SendMessage("OnDashEnter", SendMessageOptions.DontRequireReceiver);
-        
+        BroadcastMessage("OnDashEnter", SendMessageOptions.DontRequireReceiver);
+
         canDash = false;
         StartCoroutine(DisableDashRefill());
-        
+
         dashDirection = moveVector.normalized;
         physicsController.IsKinematic = true;
 
@@ -105,14 +108,14 @@ public class DashController2D : MonoBehaviour
         dashTween = DOTween.To(() => dashPosition, val => dashPosition = val,
                 physicsController.Position + dashDirection * (dashForce * dashDuration), dashDuration)
             .SetUpdate(UpdateType.Fixed).OnUpdate(UpdateDash);
-        
+
         yield return dashTween.WaitForCompletion();
 
         physicsController.Velocity = dashDirection * (dashForce * dashVelocityRetention);
         physicsController.IsKinematic = false;
 
         dashCoroutine = null;
-        SendMessage("OnDashExit", SendMessageOptions.DontRequireReceiver);
+        BroadcastMessage("OnDashExit", SendMessageOptions.DontRequireReceiver);
     }
 
     /// <summary>
@@ -153,11 +156,5 @@ public class DashController2D : MonoBehaviour
 
         StopDash();
         physicsController.Velocity = waveDashDirection * waveDashStrength;
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.green;
-        Gizmos.DrawLine(transform.position, transform.position + Vector3.right * dashForce * dashDuration);
     }
 }

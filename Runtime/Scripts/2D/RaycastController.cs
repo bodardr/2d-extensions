@@ -5,14 +5,19 @@ public class RaycastController : MonoBehaviour
 {
     private const float RAY_DIST = 0.25f;
     protected const float SHELL_RADIUS = 0.01f;
-    
+
     private BoxCollider2D boxCollider;
 
     protected int horizontalRayCount;
-    protected int verticalRayCount;
 
-    protected float horizontalRaySpacing;
-    protected float verticalRaySpacing;
+    /// <summary>
+    /// Spacing between rays :
+    /// x spacing is for vertical rays (vertical movement).
+    /// y spacing is for horizontal rays (horizontal movement).
+    /// </summary>
+    protected Vector2 raySpacing;
+
+    protected int verticalRayCount;
 
     public RaycastLocations RaycastPositions { get; private set; } = new RaycastLocations();
 
@@ -48,8 +53,7 @@ public class RaycastController : MonoBehaviour
         verticalRayCount = Mathf.RoundToInt(boundsWidth / RAY_DIST);
         horizontalRayCount = Mathf.RoundToInt(boundsHeight / RAY_DIST);
 
-        verticalRaySpacing = boundsWidth / (verticalRayCount - 1);
-        horizontalRaySpacing = boundsHeight / (horizontalRayCount - 1);
+        raySpacing = new Vector2(boundsWidth / (verticalRayCount - 1), boundsHeight / (horizontalRayCount - 1));
     }
 
     public class RaycastLocations
