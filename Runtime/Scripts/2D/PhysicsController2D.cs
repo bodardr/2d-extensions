@@ -10,16 +10,18 @@ public class PhysicsController2D : RaycastController
     private const float NORMAL_SLOPE_TOLERANCE = 0.65f;
 
     [SerializeField]
+    private float currentAccelerationTime;
+
+    [SerializeField]
+    private Vector2 velocity;
+
+    [SerializeField]
     private LayerMask groundMask;
 
     [SerializeField]
     private bool isKinematic;
 
     [Header("Friction")]
-    [Range(0, 1)]
-    [SerializeField]
-    private float groundFriction = 0.25f;
-
     [SerializeField]
     [Range(0, 1)]
     private float airFriction = 0.15f;
@@ -33,18 +35,29 @@ public class PhysicsController2D : RaycastController
 
     [Header("Acceleration")]
     [SerializeField]
-    private float horizontalAcceleration = 10f;
+    private AnimationCurve accelerationCurve;
+
+    [SerializeField]
+    private float airHorizontalAcceleration = 10f;
+
+    [Header("WIP - Pixel Snapping")]
+    [SerializeField]
+    private bool pixelSnapping = false;
+
+    [SerializeField]
+    private int pixelsPerUnit = 16;
 
     private bool facingRight = true;
+
     private bool grounded;
+    private float groundFriction = 0.2f;
+
     private Vector2 inputVector;
     private bool onWall;
 
     private List<InputOverridable> overridables = new List<InputOverridable>(3);
 
     private Rigidbody2D rb;
-
-    private Vector2 velocity;
     private bool wallFromRight;
 
     public Vector2 Velocity
@@ -138,7 +151,7 @@ public class PhysicsController2D : RaycastController
         ApplyFriction();
         ApplyVelocityDampening();
 
-        velocity = Move(velocity, Time.deltaTime) / Time.deltaTime;
+        velocity = Move(velocity, Time.fixedDeltaTime) / Time.fixedDeltaTime;
     }
 
     private Vector2 Move(Vector2 displacement, float deltaTime = 1)
@@ -156,7 +169,15 @@ public class PhysicsController2D : RaycastController
         if (Mathf.Abs(actualMovement.x) > 0)
             FacingRight = actualMovement.x > 0;
 
-        rb.position = Position + actualMovement;
+        var newPosition = Position + actualMovement;
+
+        if (pixelSnapping)
+        {
+            newPosition.x = Mathf.Round(newPosition.x * pixelsPerUnit) / pixelsPerUnit;
+            newPosition.y = Mathf.Round(newPosition.y * pixelsPerUnit) / pixelsPerUnit;
+        }
+
+        rb.position = newPosition;
 
         return actualMovement;
     }
@@ -177,24 +198,32 @@ public class PhysicsController2D : RaycastController
 
             if (hit)
             {
+                onWallThisFrame = true;
+                wallFromRight = hit.normal.x < 0;
+
                 var otherRb = hit.rigidbody;
                 var addedInertia = Vector2.zero;
-                if (otherRb)
+
+                if (otherRb && otherRb.bodyType == RigidbodyType2D.Dynamic)
                 {
                     //Apply inertia to dynamic Rigidbodies.
                     addedInertia = Vector2.right * (directionX * (hit.distance * rb.mass)) / otherRb.mass;
-                    otherRb.velocity += addedInertia / Time.deltaTime;
+                    otherRb.velocity += addedInertia / Time.fixedDeltaTime;
                 }
 
                 if (hit.distance - SHELL_RADIUS < MIN_MOVE_DISTANCE)
                 {
-                    wallFromRight = hit.normal.x < 0;
                     return 0;
                 }
 
                 moveX = Mathf.Min(Mathf.Abs(moveX),
                     Mathf.Max(0, hit.distance - SHELL_RADIUS + addedInertia.x * directionX)) * directionX;
             }
+
+            Debug.DrawLine(rayOrigin,
+                (Vector3) rayOrigin + Vector3.right * SHELL_RADIUS +
+                new Vector3(hit.distance - SHELL_RADIUS, 0, 0) * directionX,
+                hit ? Color.red : Color.cyan);
 
             if (Mathf.Abs(moveX) < MIN_MOVE_DISTANCE)
                 return 0;
@@ -225,7 +254,11 @@ public class PhysicsController2D : RaycastController
             if (hit)
             {
                 if (hit.normal.y > NORMAL_SLOPE_TOLERANCE)
+                {
                     groundedThisFrame = true;
+                    var groundMat = hit.collider.sharedMaterial;
+                    groundFriction = groundMat ? groundMat.friction : 0.2f;
+                }
 
                 moveY = Mathf.Min(Mathf.Abs(moveY), Mathf.Max(0, hit.distance - SHELL_RADIUS)) * directionY;
 
@@ -251,7 +284,21 @@ public class PhysicsController2D : RaycastController
 
     private void ApplyHorizontalMovement()
     {
-        velocity.x += horizontalAcceleration * Time.deltaTime * inputVector.x;
+        //Update acceleration curve.
+        var inputDelta = Mathf.Abs(inputVector.x - currentAccelerationTime);
+
+        if (Mathf.Approximately(inputVector.x, 0))
+        {
+            currentAccelerationTime = 0;
+            return;
+        }
+
+        currentAccelerationTime =
+            Mathf.Lerp(currentAccelerationTime, inputVector.x, Mathf.Min(inputDelta * 2, 1) * Time.fixedDeltaTime);
+
+        velocity.x +=
+            (Grounded ? accelerationCurve.Evaluate(Mathf.Abs(currentAccelerationTime)) : airHorizontalAcceleration) *
+            inputVector.x * Time.fixedDeltaTime;
     }
 
     private void ApplyFriction()
@@ -261,9 +308,10 @@ public class PhysicsController2D : RaycastController
 
     private void ApplyVelocityDampening()
     {
-        velocity.x = Mathf.Clamp(velocity.x, -maxHorizontalVelocity / Time.deltaTime,
-            maxHorizontalVelocity / Time.deltaTime);
-        velocity.y = Mathf.Clamp(velocity.y, YVelocityRange.x / Time.deltaTime, YVelocityRange.y / Time.deltaTime);
+        velocity.x = Mathf.Clamp(velocity.x, -maxHorizontalVelocity / Time.fixedDeltaTime,
+            maxHorizontalVelocity / Time.fixedDeltaTime);
+        velocity.y = Mathf.Clamp(velocity.y, YVelocityRange.x / Time.fixedDeltaTime,
+            YVelocityRange.y / Time.fixedDeltaTime);
     }
 
     private void OnMove(InputValue value)

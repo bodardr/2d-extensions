@@ -26,7 +26,7 @@ public class WallController2D : MonoBehaviour
 
     private void SetupWallPhysics()
     {
-        retainedYRange.x = physicsController.YVelocityRange.x;
+        retainedYRange = physicsController.YVelocityRange;
         physicsController.YVelocityRange = new Vector2(walledMaxDownwardsVelocity, retainedYRange.y);
     }
 }
