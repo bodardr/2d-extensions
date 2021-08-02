@@ -19,7 +19,7 @@ public class RaycastController : MonoBehaviour
 
     protected int verticalRayCount;
 
-    public RaycastLocations RaycastPositions { get; private set; } = new RaycastLocations();
+    public RaycastLocations RaycastPositions { get; } = new RaycastLocations();
 
     protected virtual void Awake()
     {
