@@ -2,8 +2,9 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[AddComponentMenu("Physics2D/2D Controller/Wall Jump Controller")]
 [RequireComponent(typeof(PhysicsController2D))]
-public class WallJumpController2D : MonoBehaviour, InputOverridable
+public class WallJumpController2D : MonoBehaviour, IInputOverridable
 {
     private PhysicsController2D physicsController;
     private Vector2 moveVector;

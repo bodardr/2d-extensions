@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[AddComponentMenu("Physics2D/2D Controller/Physics Controller 2D", 0)]
 [RequireComponent(typeof(Rigidbody2D))]
 public class PhysicsController2D : RaycastController
 {
@@ -55,7 +56,7 @@ public class PhysicsController2D : RaycastController
     private Vector2 inputVector;
     private bool onWall;
 
-    private List<InputOverridable> overridables = new List<InputOverridable>(3);
+    private readonly List<IInputOverridable> overridables = new List<IInputOverridable>(3);
 
     private Rigidbody2D rb;
     private bool wallFromRight;
@@ -319,7 +320,7 @@ public class PhysicsController2D : RaycastController
         inputVector = value.Get<Vector2>();
     }
 
-    public void OverrideControl(InputOverridable overridable, bool removeOtherOverridables = false)
+    public void OverrideControl(IInputOverridable overridable, bool removeOtherOverridables = false)
     {
         if (removeOtherOverridables)
         {
@@ -330,7 +331,7 @@ public class PhysicsController2D : RaycastController
         overridables.Add(overridable);
     }
 
-    public void RegainControl(InputOverridable overridable)
+    public void RegainControl(IInputOverridable overridable)
     {
         if (overridables.Remove(overridable))
             overridable.OnControlRegained();

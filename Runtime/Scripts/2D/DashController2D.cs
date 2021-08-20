@@ -3,6 +3,8 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[AddComponentMenu("Physics2D/2D Controller/Dash Controller")]
+[RequireComponent(typeof(PhysicsController2D))]
 public class DashController2D : MonoBehaviour
 {
     [SerializeField]

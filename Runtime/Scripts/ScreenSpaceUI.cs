@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[AddComponentMenu("UI/Screen-Space UI")]
 public class ScreenSpaceUI : MonoBehaviour
 {
     [SerializeField]

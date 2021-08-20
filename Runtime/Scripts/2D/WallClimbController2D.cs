@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class WallClimbController2D : MonoBehaviour, InputOverridable
+[AddComponentMenu("Physics2D/2D Controller/Wall Climb Controller")]
+[RequireComponent(typeof(PhysicsController2D))]
+public class WallClimbController2D : MonoBehaviour, IInputOverridable
 {
     private PhysicsController2D physicsController;
 

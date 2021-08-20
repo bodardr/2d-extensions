@@ -1,5 +1,7 @@
 using UnityEngine;
 
+[AddComponentMenu("Physics2D/2D Controller/Wall Controller")]
+[RequireComponent(typeof(PhysicsController2D))]
 public class WallController2D : MonoBehaviour
 {
     [SerializeField]

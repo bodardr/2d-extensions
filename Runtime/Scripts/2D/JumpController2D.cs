@@ -1,6 +1,8 @@
 using System.Collections;
 using UnityEngine;
 
+[AddComponentMenu("Physics2D/2D Controller/Jump Controller")]
+[RequireComponent(typeof(PhysicsController2D))]
 public class JumpController2D : MonoBehaviour
 {
     [SerializeField]
