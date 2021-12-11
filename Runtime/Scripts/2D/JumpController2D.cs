@@ -1,12 +1,13 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [AddComponentMenu("Physics2D/2D Controller/Jump Controller")]
 [RequireComponent(typeof(PhysicsController2D))]
 public class JumpController2D : MonoBehaviour
 {
     [SerializeField]
-    private float jumpForce;
+    private float jumpHeight;
 
     private bool canJump = false;
     private Coroutine coyoteTimeCoroutine;
@@ -54,13 +55,22 @@ public class JumpController2D : MonoBehaviour
     }
 
 
-    private void OnJump()
+    private void OnJump(InputValue value)
     {
-        if (!canJump)
-            return;
-
-        physicsController2D.Velocity = new Vector2(physicsController2D.Velocity.x, jumpForce);
-        canJump = false;
-        BroadcastMessage("OnJumpEnter", Vector2.up, SendMessageOptions.DontRequireReceiver);
+        var vel = physicsController2D.Velocity;
+        
+        if (value.isPressed && canJump)
+        {
+            var force = MathExtensions.GetJumpForce(jumpHeight);
+        
+            physicsController2D.Velocity = new Vector2(vel.x, force);
+            canJump = false;
+            
+            BroadcastMessage("OnJumpEnter", Vector2.up, SendMessageOptions.DontRequireReceiver);
+        }   
+        else if (!value.isPressed && vel.y > 0)
+        {
+            physicsController2D.Velocity = new Vector2(vel.x, vel.y / 2);
+        }
     }
 }

@@ -4,12 +4,13 @@ using UnityEngine;
 [RequireComponent(typeof(PhysicsController2D))]
 public class WallController2D : MonoBehaviour
 {
-    [SerializeField]
-    private float walledMaxDownwardsVelocity = -2;
-
     private bool checkForWallExit;
     private PhysicsController2D physicsController;
-    private Vector2 retainedYRange;
+    private float retainedDrag;
+
+    [Range(0,1)]
+    [SerializeField]
+    private float wallDrag = .95f;
 
     private void Start()
     {
@@ -23,12 +24,12 @@ public class WallController2D : MonoBehaviour
 
     private void OnWallExit()
     {
-        physicsController.YVelocityRange = retainedYRange;
+        physicsController.Drag = retainedDrag;
     }
 
     private void SetupWallPhysics()
     {
-        retainedYRange = physicsController.YVelocityRange;
-        physicsController.YVelocityRange = new Vector2(walledMaxDownwardsVelocity, retainedYRange.y);
+        retainedDrag = physicsController.Drag;
+        physicsController.Drag = wallDrag;
     }
 }

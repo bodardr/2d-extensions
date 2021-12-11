@@ -7,7 +7,9 @@ using UnityEngine.InputSystem;
 public class WallJumpController2D : MonoBehaviour, IInputOverridable
 {
     private PhysicsController2D physicsController;
+    
     private Vector2 moveVector;
+    private Vector2 jumpVector;
 
     private bool grounded;
     private bool canJump = false;
@@ -16,12 +18,15 @@ public class WallJumpController2D : MonoBehaviour, IInputOverridable
     Coroutine coyoteTimeCoroutine;
 
     [SerializeField]
-    private float jumpForce = 10;
+    private float jumpForce = 5;
 
     [Header("Jump angle range from 0-90°. 0° is right")]
     [Tooltip("Ranges from 0 to 90°. 0° is right")]
     [SerializeField]
     private Vector2 jumpAngleRange;
+
+    [Header("Coyote Time")]
+    private float coyoteTime = 0.5f;
 
     [Header("Override input")]
     [SerializeField]
@@ -57,15 +62,16 @@ public class WallJumpController2D : MonoBehaviour, IInputOverridable
             coyoteTimeCoroutine = StartCoroutine(CoyoteTimeCoroutine());
     }
 
-    private void OnJump()
+    private void OnJump(InputValue value)
     {
-        if (!canJump || grounded)
+        if (!canJump || grounded || !value.isPressed)
             return;
 
         var angle = FindJumpAngle();
 
-        var jumpVector = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
-        physicsController.Velocity = jumpVector * jumpForce;
+        jumpVector = new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
+        physicsController.Velocity = jumpVector * MathExtensions.GetJumpForce(jumpForce);
+
         SendMessage("OnJumpEnter", jumpVector, SendMessageOptions.DontRequireReceiver);
 
         if (overrideInput)
@@ -76,15 +82,15 @@ public class WallJumpController2D : MonoBehaviour, IInputOverridable
 
     private IEnumerator CoyoteTimeCoroutine()
     {
-        yield return new WaitForSeconds(5 / 60f);
+        yield return new WaitForSeconds(coyoteTime);
         canJump = false;
     }
 
     private IEnumerator OverrideInputCoroutine()
     {
-        physicsController.OverrideControl(this, true);
+        physicsController.OverrideControl(this);
         yield return new WaitForSeconds(inputOverrideDuration);
-        physicsController.RegainControl(this);
+        physicsController.RegainControl();
     }
 
     private void OnMove(InputValue value)
@@ -97,6 +103,7 @@ public class WallJumpController2D : MonoBehaviour, IInputOverridable
         var range = fromRight ? new Vector2(180 - jumpAngleRange.y, 180 - jumpAngleRange.x) : jumpAngleRange;
 
         float jumpAngle;
+        
         if (moveVector.magnitude < 0.1f)
         {
             jumpAngle = (range.x + range.y) / 2;
@@ -108,6 +115,16 @@ public class WallJumpController2D : MonoBehaviour, IInputOverridable
         }
 
         return jumpAngle;
+    }
+    
+    public Vector2 OverrideInputUpdate(Vector2 inputVector)
+    {
+        return jumpVector;
+    }
+
+    public void OnControlRegained()
+    {
+        StopAllCoroutines();
     }
 
     private void OnDrawGizmosSelected()
@@ -129,10 +146,5 @@ public class WallJumpController2D : MonoBehaviour, IInputOverridable
                 transform.position +
                 (Vector3) new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad)));
         }
-    }
-
-    public void OnControlRegained()
-    {
-        StopAllCoroutines();
     }
 }

@@ -7,6 +7,23 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(PhysicsController2D))]
 public class DashController2D : MonoBehaviour
 {
+    private bool canDash = false;
+    private bool checkForDashRefill = true;
+
+    private Coroutine dashCoroutine;
+    private Vector2 dashDirection;
+
+    private Vector2 dashPosition;
+    private Tweener dashTween;
+    private Vector2 lastDashPosition;
+
+    private Vector2 moveVector;
+    
+    private PhysicsSolver2D physicsSolver;
+    private PhysicsController2D physicsController;
+
+    private bool IsDashing => dashCoroutine != null;
+
     [SerializeField]
     private float dashForce = 5;
 
@@ -25,29 +42,14 @@ public class DashController2D : MonoBehaviour
     [SerializeField]
     private float waveDashInfluence;
 
-    private bool canDash = false;
-    private bool checkForDashRefill = true;
-
-    private Coroutine dashCoroutine;
-    private Vector2 dashDirection;
-
-    private Vector2 dashPosition;
-    private Tweener dashTween;
-    private Vector2 lastDashPosition;
-
-    private Vector2 moveVector;
-    private PhysicsController2D physicsController;
-
-    private bool IsDashing => dashCoroutine != null;
-
     private void Start()
     {
-        physicsController = GetComponent<PhysicsController2D>();
+        physicsSolver = GetComponent<PhysicsSolver2D>();
     }
 
     private void FixedUpdate()
     {
-        if (checkForDashRefill && physicsController.Grounded)
+        if (checkForDashRefill && physicsSolver.Grounded)
             RefillDash();
     }
 
@@ -91,7 +93,7 @@ public class DashController2D : MonoBehaviour
 
         StopCoroutine(dashCoroutine);
         dashCoroutine = null;
-        physicsController.IsKinematic = false;
+        physicsSolver.IsKinematic = false;
         dashTween.Kill();
         BroadcastMessage("OnDashExit", SendMessageOptions.DontRequireReceiver);
     }
@@ -104,17 +106,17 @@ public class DashController2D : MonoBehaviour
         StartCoroutine(DisableDashRefill());
 
         dashDirection = moveVector.normalized;
-        physicsController.IsKinematic = true;
+        physicsSolver.IsKinematic = true;
 
-        lastDashPosition = dashPosition = physicsController.Position;
+        lastDashPosition = dashPosition = physicsSolver.Position;
         dashTween = DOTween.To(() => dashPosition, val => dashPosition = val,
-                physicsController.Position + dashDirection * (dashForce * dashDuration), dashDuration)
+                physicsSolver.Position + dashDirection * (dashForce * dashDuration), dashDuration)
             .SetUpdate(UpdateType.Fixed).OnUpdate(UpdateDash);
 
         yield return dashTween.WaitForCompletion();
 
         physicsController.Velocity = dashDirection * (dashForce * dashVelocityRetention);
-        physicsController.IsKinematic = false;
+        physicsSolver.IsKinematic = false;
 
         dashCoroutine = null;
         BroadcastMessage("OnDashExit", SendMessageOptions.DontRequireReceiver);
@@ -134,7 +136,7 @@ public class DashController2D : MonoBehaviour
     private void UpdateDash()
     {
         var delta = dashPosition - lastDashPosition;
-        physicsController.Position += delta;
+        physicsSolver.Position += delta;
         lastDashPosition = dashPosition;
     }
 

@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(PhysicsController2D))]
 public class WallClimbController2D : MonoBehaviour, IInputOverridable
 {
+    private PhysicsSolver2D physicsSolver;
     private PhysicsController2D physicsController;
 
     private bool climbInput;
@@ -15,6 +16,7 @@ public class WallClimbController2D : MonoBehaviour, IInputOverridable
     private void Start()
     {
         physicsController = GetComponent<PhysicsController2D>();
+        physicsSolver = GetComponent<PhysicsSolver2D>();
     }
 
     private void FixedUpdate()
@@ -36,18 +38,23 @@ public class WallClimbController2D : MonoBehaviour, IInputOverridable
     private void BeginClimbing()
     {
         physicsController.OverrideControl(this);
-        physicsController.IsKinematic = true;
+        physicsSolver.IsKinematic = true;
         isClimbing = false;
     }
 
     private void StopClimbing()
     {
-        physicsController.RegainControl(this);
+        physicsController.RegainControl();
+    }
+
+    public Vector2 OverrideInputUpdate(Vector2 inputVector)
+    {
+        return inputVector;
     }
 
     public void OnControlRegained()
     {
-        physicsController.IsKinematic = false;
+        physicsSolver.IsKinematic = false;
         isClimbing = false;
     }
 }

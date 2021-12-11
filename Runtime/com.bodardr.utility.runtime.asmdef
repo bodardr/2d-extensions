@@ -1,17 +1,24 @@
 {
-  "name": "com.bodardr.utility.runtime",
-  "rootNamespace": "Bodardr.Utility.Runtime",
-  "references": [
-    "Unity.TextMeshPro",
-    "Unity.InputSystem"
-  ],
-  "includePlatforms": [],
-  "excludePlatforms": [],
-  "allowUnsafeCode": false,
-  "overrideReferences": false,
-  "precompiledReferences": [],
-  "autoReferenced": true,
-  "defineConstraints": [],
-  "versionDefines": [],
-  "noEngineReferences": false
+    "name": "com.bodardr.utility.runtime",
+    "rootNamespace": "Bodardr.Utility.Runtime",
+    "references": [
+        "Unity.TextMeshPro",
+        "Unity.InputSystem",
+        "Cinemachine"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.cinemachine",
+            "expression": "1.0.0",
+            "define": "HAS_CINEMACHINE"
+        }
+    ],
+    "noEngineReferences": false
 }

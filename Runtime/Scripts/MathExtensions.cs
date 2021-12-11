@@ -2,6 +2,11 @@
 
 public static class MathExtensions
 {
+    public static float Remap(float value, float minA, float maxA, float minB, float maxB)
+    {
+        return Mathf.Lerp(minB, maxB, Mathf.InverseLerp(minA, maxA, value));
+    }
+    
     public static Bounds PointsToBounds(Vector2 firstPoint, Vector2 lastPoint)
     {
         Vector2 average = (firstPoint + lastPoint) / 2;
@@ -30,6 +35,67 @@ public static class MathExtensions
         intersection = new BoundsInt(min.x, min.y, 0, size.x, size.y, 0);
 
         return !(min.x >= max.x || min.y >= max.y);
+    }
+
+    public static float RandomValueWithinRange(this Vector2 range) => Random.Range(range.x, range.y);
+    public static float RandomValueWithinRange(this Vector2Int range) => Random.Range(range.x, range.y);
+    
+    public static float GetJumpForce(float jumpHeight)
+    {
+        return Mathf.Sqrt(-2 * Physics2D.gravity.y * jumpHeight);
+    }
+
+    /// <summary>Rotates a vector along degrees.</summary>
+    /// <see>
+    ///     <see>https://answers.unity.com/questions/661383/whats-the-most-efficient-way-to-rotate-a-vector2-o.html</see>
+    /// </see>
+    public static Vector2 Rotated(this Vector2 v, float degrees) {
+        float sin = Mathf.Sin(degrees * Mathf.Deg2Rad);
+        float cos = Mathf.Cos(degrees * Mathf.Deg2Rad);
+         
+        float tx = v.x;
+        float ty = v.y;
+        v.x = (cos * tx) - (sin * ty);
+        v.y = (sin * tx) + (cos * ty);
+        return v;
+    }
+
+    public static Vector2 ToBinormal(this Vector2 v)
+    {
+        return new Vector2(v.y, -v.x);
+    }
+
+    public static Vector3 ClampToBounds(this Vector3 pos, Bounds bounds)
+    {
+        var clampedPos = Clamp(pos, bounds.min, bounds.max);
+        return Vector3Int.RoundToInt(clampedPos);
+    }
+
+    public static Vector3 ClampToBounds(this Bounds bounds, Vector3 pos)
+    {
+        var clampedPos = Clamp(pos, bounds.min, bounds.max);
+        return Vector3Int.RoundToInt(clampedPos);
+    }
+
+    public static Vector3Int ClampToBoundsInt(this Vector3Int pos, BoundsInt bounds)
+    {
+        pos.Clamp(bounds.min, bounds.max);
+        return pos;
+    }
+
+    public static Vector3Int ClampToBoundsInt(this BoundsInt bounds, Vector3Int pos)
+    {
+        pos.Clamp(bounds.min, bounds.max);
+        return pos;
+    }
+
+    private static Vector3 Clamp(Vector3 pos, Vector3 boundsMIN, Vector3 boundsMAX)
+    {
+        pos.x = Mathf.Clamp(pos.x, boundsMIN.x, boundsMAX.x);
+        pos.y = Mathf.Clamp(pos.y, boundsMIN.y, boundsMAX.y);
+        pos.z = Mathf.Clamp(pos.z, boundsMIN.z, boundsMAX.z);
+
+        return pos;
     }
 
     public static bool IsSuperiorOrEqual(Vector3Int value, Vector3Int against)
