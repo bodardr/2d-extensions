@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Runtime.CompilerServices;
+using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Button))]
@@ -6,6 +8,9 @@ public class CollectionItemButton : MonoBehaviour
 {
     private Button button;
     private ICollectionCallback[] callbacks;
+
+    [SerializeField]
+    private IndexRetrievalStrategy indexRetrieval = IndexRetrievalStrategy.This; 
 
     private void Start()
     {
@@ -25,10 +30,32 @@ public class CollectionItemButton : MonoBehaviour
         if(callbacks == null)
             InitializeCallbacks();
 
-        int index = transform.GetSiblingIndex();
+        int index;
+        switch (indexRetrieval)
+        {
+            case IndexRetrievalStrategy.This:
+                index = transform.GetSiblingIndex();
+                break;
+            case IndexRetrievalStrategy.Parent:
+                index = transform.parent.GetSiblingIndex();
+                break;
+            case IndexRetrievalStrategy.ParentOfParent:
+                index = transform.parent.parent.GetSiblingIndex();
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+        
         foreach (var callback in callbacks)
         {
             callback.OnClicked(index);
         }
     }
+}
+
+public enum IndexRetrievalStrategy
+{
+    This,
+    Parent,
+    ParentOfParent,
 }
