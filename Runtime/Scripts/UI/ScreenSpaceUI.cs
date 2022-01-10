@@ -25,7 +25,7 @@ public class ScreenSpaceUI : MonoBehaviour
         set => target = value;
     }
 
-    private void Awake()
+    private void Start()
     {
         rectTransform = GetComponent<RectTransform>();
         parentCanvas = GetComponentInParent<Canvas>();
@@ -44,7 +44,7 @@ public class ScreenSpaceUI : MonoBehaviour
     {
         if (updateType != UpdateType.Fixed)
             return;
-        
+
         UpdatePosition();
     }
 
@@ -59,9 +59,9 @@ public class ScreenSpaceUI : MonoBehaviour
 
     public void UpdatePosition()
     {
-        if (!target) 
-        return;
-        
+        if (!target)
+            return;
+
         RectTransformUtility.ScreenPointToWorldPointInRectangle(rectTransform,
             camera.WorldToScreenPoint(target.position) + camera.ViewportToScreenPoint(viewportOffset),
             parentCanvas.renderMode == RenderMode.ScreenSpaceCamera ? camera : null, out var position);

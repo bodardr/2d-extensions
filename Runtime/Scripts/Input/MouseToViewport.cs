@@ -25,7 +25,6 @@ public class MouseToViewportProcessor : InputProcessor<Vector2>
 
     public override Vector2 Process(Vector2 value, InputControl control)
     {
-        //test
         return value / display - half;
     }
 }

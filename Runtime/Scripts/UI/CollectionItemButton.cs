@@ -11,6 +11,8 @@ public class CollectionItemButton : MonoBehaviour
 
     [SerializeField]
     private IndexRetrievalStrategy indexRetrieval = IndexRetrievalStrategy.This; 
+    
+    public int CustomIndex { get; set; }
 
     private void Start()
     {
@@ -42,6 +44,9 @@ public class CollectionItemButton : MonoBehaviour
             case IndexRetrievalStrategy.ParentOfParent:
                 index = transform.parent.parent.GetSiblingIndex();
                 break;
+            case IndexRetrievalStrategy.Custom:
+                index = CustomIndex;
+                break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -58,4 +63,5 @@ public enum IndexRetrievalStrategy
     This,
     Parent,
     ParentOfParent,
+    Custom
 }
