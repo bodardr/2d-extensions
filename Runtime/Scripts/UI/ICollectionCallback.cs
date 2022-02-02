@@ -1,6 +1,4 @@
-﻿using System;
-
-public interface ICollectionCallback
+﻿public interface ICollectionCallback
 {
-    public void OnClicked(int index);
+    public void OnItemClicked(int index);
 }

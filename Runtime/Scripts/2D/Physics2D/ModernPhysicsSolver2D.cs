@@ -1,6 +1,4 @@
-﻿using System.CodeDom;
-using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ModernPhysicsSolver2D : PhysicsSolver2D
 {

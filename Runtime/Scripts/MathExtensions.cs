@@ -6,7 +6,7 @@ public static class MathExtensions
     {
         return Mathf.Lerp(minB, maxB, Mathf.InverseLerp(minA, maxA, value));
     }
-    
+
     public static Bounds PointsToBounds(Vector2 firstPoint, Vector2 lastPoint)
     {
         Vector2 average = (firstPoint + lastPoint) / 2;
@@ -38,8 +38,25 @@ public static class MathExtensions
     }
 
     public static float RandomValueWithinRange(this Vector2 range) => Random.Range(range.x, range.y);
+
     public static float RandomValueWithinRange(this Vector2Int range) => Random.Range(range.x, range.y);
-    
+
+    public static float FindTopDownAngle(Vector3 delta)
+    {
+        var vector = Vector3.ProjectOnPlane(delta.normalized,Vector3.up );
+        return Mathf.Atan2(vector.z, vector.x) * Mathf.Rad2Deg;
+    }
+
+    public static Vector3 GetTopDownVectorForAngle(float angle)
+    {
+        var rad = angle * Mathf.Deg2Rad;
+        
+        var x = Mathf.Cos(rad);
+        var z = Mathf.Sin(rad);
+
+        return new Vector3(x, 0, z);
+    }
+
     public static float GetJumpForce(float jumpHeight)
     {
         return Mathf.Sqrt(-2 * Physics2D.gravity.y * jumpHeight);

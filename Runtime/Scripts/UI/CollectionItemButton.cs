@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -53,7 +52,7 @@ public class CollectionItemButton : MonoBehaviour
         
         foreach (var callback in callbacks)
         {
-            callback.OnClicked(index);
+            callback.OnItemClicked(index);
         }
     }
 }

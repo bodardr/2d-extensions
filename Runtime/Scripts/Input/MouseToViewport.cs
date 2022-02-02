@@ -1,8 +1,9 @@
-﻿using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 #if UNITY_EDITOR
+using UnityEditor;
+
 [InitializeOnLoad]
 #endif
 public class MouseToViewportProcessor : InputProcessor<Vector2>

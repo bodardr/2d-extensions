@@ -1,7 +1,9 @@
-﻿
-    using Bodardr.UI.Runtime;
-    using UnityEngine;
+﻿using Bodardr.UI.Runtime;
 
-    public class Coroutiner : DontDestroyOnLoad<Coroutiner>
-    {
-    }
+/// <summary>
+/// A static DontDestroyOnLoad instance allowing to call a Coroutine without fearing
+/// GameObject deactivation.
+/// </summary>
+public class Coroutiner : DontDestroyOnLoad<Coroutiner>
+{
+}
