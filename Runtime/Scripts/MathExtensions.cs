@@ -19,7 +19,7 @@ public static class MathExtensions
     public static BoundsInt PointsToBounds(Vector2Int firstPoint, Vector2Int lastPoint)
     {
         Vector2 delta = lastPoint - firstPoint;
-        Vector2Int size = new Vector2Int((int) Mathf.Abs(delta.x), (int) Mathf.Abs(delta.y));
+        Vector2Int size = new Vector2Int((int)Mathf.Abs(delta.x), (int)Mathf.Abs(delta.y));
 
         var min = Vector2Int.Min(firstPoint, lastPoint);
         return new BoundsInt(min.x, min.y, 0, size.x, size.y, 0);
@@ -43,14 +43,14 @@ public static class MathExtensions
 
     public static float FindTopDownAngle(Vector3 delta)
     {
-        var vector = Vector3.ProjectOnPlane(delta.normalized,Vector3.up );
+        var vector = Vector3.ProjectOnPlane(delta.normalized, Vector3.up);
         return Mathf.Atan2(vector.z, vector.x) * Mathf.Rad2Deg;
     }
 
     public static Vector3 GetTopDownVectorForAngle(float angle)
     {
         var rad = angle * Mathf.Deg2Rad;
-        
+
         var x = Mathf.Cos(rad);
         var z = Mathf.Sin(rad);
 
@@ -66,10 +66,11 @@ public static class MathExtensions
     /// <see>
     ///     <see>https://answers.unity.com/questions/661383/whats-the-most-efficient-way-to-rotate-a-vector2-o.html</see>
     /// </see>
-    public static Vector2 Rotated(this Vector2 v, float degrees) {
+    public static Vector2 Rotated(this Vector2 v, float degrees)
+    {
         float sin = Mathf.Sin(degrees * Mathf.Deg2Rad);
         float cos = Mathf.Cos(degrees * Mathf.Deg2Rad);
-         
+
         float tx = v.x;
         float ty = v.y;
         v.x = (cos * tx) - (sin * ty);
@@ -84,14 +85,12 @@ public static class MathExtensions
 
     public static Vector3 ClampToBounds(this Vector3 pos, Bounds bounds)
     {
-        var clampedPos = Clamp(pos, bounds.min, bounds.max);
-        return Vector3Int.RoundToInt(clampedPos);
+        return Clamp(pos, bounds.min, bounds.max);
     }
 
     public static Vector3 ClampToBounds(this Bounds bounds, Vector3 pos)
     {
-        var clampedPos = Clamp(pos, bounds.min, bounds.max);
-        return Vector3Int.RoundToInt(clampedPos);
+        return Clamp(pos, bounds.min, bounds.max);
     }
 
     public static Vector3Int ClampToBoundsInt(this Vector3Int pos, BoundsInt bounds)
@@ -146,6 +145,6 @@ public static class MathExtensions
 
     public static bool Contains(BoundsInt bounds, Vector2Int point)
     {
-        return IsSuperiorOrEqual(point, (Vector2Int) bounds.min) && IsSuperior((Vector2Int) bounds.max, point);
+        return IsSuperiorOrEqual(point, (Vector2Int)bounds.min) && IsSuperior((Vector2Int)bounds.max, point);
     }
 }

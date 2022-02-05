@@ -9,6 +9,7 @@ public class ScreenSpaceUI : MonoBehaviour
     private Canvas parentCanvas;
 
     private RectTransform rectTransform;
+    private Vector3 screenPosition;
 
     [SerializeField]
     private UpdateType updateType;
@@ -24,6 +25,8 @@ public class ScreenSpaceUI : MonoBehaviour
         get => target;
         set => target = value;
     }
+
+    public Vector3 ScreenPosition => screenPosition;
 
     private void Start()
     {
@@ -64,9 +67,9 @@ public class ScreenSpaceUI : MonoBehaviour
 
         RectTransformUtility.ScreenPointToWorldPointInRectangle(rectTransform,
             camera.WorldToScreenPoint(target.position) + camera.ViewportToScreenPoint(viewportOffset),
-            parentCanvas.renderMode == RenderMode.ScreenSpaceCamera ? camera : null, out var position);
+            parentCanvas.renderMode == RenderMode.ScreenSpaceCamera ? camera : null, out screenPosition);
 
-        rectTransform.position = position;
+        rectTransform.position = screenPosition;
     }
 
     public void SetOffset(Vector2 newOffset)
