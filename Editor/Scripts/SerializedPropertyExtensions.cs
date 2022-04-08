@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
+using UnityEngine;
 
 namespace Bodardr.Utility.Editor
 {
@@ -58,6 +59,24 @@ namespace Bodardr.Utility.Editor
             var index = int.Parse(splitPathLast.Substring(indexOfStart + 1, splitPathLast.Length - indexOfStart - 2));
 
             return ((Array)obj).GetValue(index);
+        }
+
+        public static SerializedProperty FindParent(this SerializedProperty prop)
+        {
+            if (prop.depth < 1)
+            {
+                throw new Exception("Cannot use 'GetParent' on root property");
+            }
+
+            var propPath = prop.propertyPath;
+            return prop.serializedObject.FindProperty(propPath[..propPath.LastIndexOf('.')]);
+        }
+
+        public static SerializedProperty FindSiblingProperty(this SerializedProperty prop, string relativePropertyPath)
+        {
+            return prop.depth > 0
+                ? prop.FindParent().FindPropertyRelative(relativePropertyPath)
+                : prop.serializedObject.FindProperty(relativePropertyPath);
         }
     }
 }

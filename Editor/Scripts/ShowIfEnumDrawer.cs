@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using Bodardr.Utility.Editor;
+using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -11,6 +12,7 @@ public class ShowIfEnumDrawer : PropertyDrawer
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
+        UpdateShow(property);
         return show ? base.GetPropertyHeight(property, label) : 0f;
     }
 
@@ -32,7 +34,7 @@ public class ShowIfEnumDrawer : PropertyDrawer
     {
         var att = (ShowIfEnumAttribute)attribute;
 
-        var s = property.serializedObject.FindProperty(att.MemberName).enumValueIndex == att.EnumValue;
+        var s = property.FindSiblingProperty(att.MemberName).enumValueIndex == att.EnumValue;
 
         if (att.Invert)
             s = !s;

@@ -1,16 +1,18 @@
 ﻿using Bodardr.UI.Runtime;
+using Bodardr.Utility.Editor;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[CustomPropertyDrawer(typeof(ShowIfAttribute))]
+[CustomPropertyDrawer(typeof(ShowIfAttribute), true)]
 public class ShowIfDrawer : PropertyDrawer
 {
     private bool show;
 
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
+        UpdateShow(property);
         return show ? base.GetPropertyHeight(property, label) : 0f;
     }
 
@@ -32,7 +34,7 @@ public class ShowIfDrawer : PropertyDrawer
     {
         var att = (ShowIfAttribute)attribute;
         
-        var prop = property.serializedObject.FindProperty(att.MemberName);
+        var prop = property.FindSiblingProperty(att.MemberName);
         var s = prop.boolValue;
 
         if (att.Invert)
