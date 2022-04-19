@@ -38,7 +38,7 @@ public static class MathExtensions
     }
 
     public static float RandomValueWithinRange(this Vector2 range) => Random.Range(range.x, range.y);
-
+    public static int RandomIntValueWithinRange(this Vector2 range) => Mathf.RoundToInt(Random.Range(range.x, range.y));
     public static float RandomValueWithinRange(this Vector2Int range) => Random.Range(range.x, range.y);
 
     public static float FindTopDownAngle(Vector3 delta)
