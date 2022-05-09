@@ -1,4 +1,5 @@
 ﻿using System;
+using Bodardr.UI.Runtime;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,7 +10,11 @@ public class CollectionItemButton : MonoBehaviour
     private ICollectionCallback[] callbacks;
 
     [SerializeField]
-    private IndexRetrievalStrategy indexRetrieval = IndexRetrievalStrategy.This; 
+    private IndexRetrievalStrategy indexRetrieval = IndexRetrievalStrategy.This;
+
+    [ShowIfEnum(nameof(indexRetrieval), (int)IndexRetrievalStrategy.MultipleParents)]
+    [SerializeField]
+    private int parentRecursionLevel;
     
     public int CustomIndex { get; set; }
 
@@ -43,6 +48,14 @@ public class CollectionItemButton : MonoBehaviour
             case IndexRetrievalStrategy.ParentOfParent:
                 index = transform.parent.parent.GetSiblingIndex();
                 break;
+            case IndexRetrievalStrategy.MultipleParents:
+                var tr = transform;
+
+                for (int i = 0; i < parentRecursionLevel; i++)
+                    tr = transform.parent;
+
+                index = tr.GetSiblingIndex();
+                break;
             case IndexRetrievalStrategy.Custom:
                 index = CustomIndex;
                 break;
@@ -62,5 +75,6 @@ public enum IndexRetrievalStrategy
     This,
     Parent,
     ParentOfParent,
+    MultipleParents,
     Custom
 }
