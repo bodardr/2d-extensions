@@ -6,6 +6,9 @@ namespace Bodardr.Utility.Runtime
     {
         public static bool IsStatic(this Type type)
         {
+            if (type == null)
+                return false;
+            
             return type.IsAbstract && type.IsSealed;
         }
     }
