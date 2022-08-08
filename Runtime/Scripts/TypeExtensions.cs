@@ -4,7 +4,7 @@ namespace Bodardr.Utility.Runtime
 {
     public static class TypeExtensions
     {
-        public static bool IsStatic(this Type type)
+        public static bool IsStaticType(this Type type)
         {
             if (type == null)
                 return false;
