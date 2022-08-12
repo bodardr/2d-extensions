@@ -7,7 +7,7 @@ namespace Bodardr.Utility.Runtime
         public static string RemoveCloneSuffix(this string str)
         {
             var indexOf = str.IndexOf("(Clone)", StringComparison.InvariantCulture);
-            return str[..(indexOf - 1)];
+            return str[..(indexOf)];
         }
     }
 }
