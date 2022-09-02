@@ -1,0 +1,17 @@
+{
+    "name": "com.bodardr.2d-extensions.runtime",
+    "rootNamespace": "Bodardr.2D-Extensions.Runtime",
+    "references": [
+        "com.bodardr.utility.runtime",
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
